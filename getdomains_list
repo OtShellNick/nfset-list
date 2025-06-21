@@ -2,21 +2,68 @@
 
 START=99
 
-start () {
-    DOMAINS=https://raw.githubusercontent.com/OtShellNick/nfset-list/main/dnsmasq-nfset.lst
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] $1"
+}
+
+start() {
+    log "Шаг 1: Подготовка путей и ссылок"
+    DOMAINS1="https://raw.githubusercontent.com/itdoginfo/allow-domains/main/Russia/inside-dnsmasq-nfset.lst"
+    DOMAINS2="https://raw.githubusercontent.com/OtShellNick/nfset-list/main/dnsmasq-nfset.lst"  # замените на нужный URL
+
+    TMPDIR="/tmp/dnsmasq.d"
+    mkdir -p "$TMPDIR"
+
+    FILE1="$TMPDIR/domains1.lst"
+    FILE2="$TMPDIR/domains2.lst"
+    COMBINED_NEW="$TMPDIR/domains_combined.lst.new"
+    COMBINED_FINAL="$TMPDIR/domains.lst"
 
     count=0
+    log "Шаг 2: Проверка доступности интернета и GitHub"
+
     while true; do
-        if curl -m 3 github.com; then
-            curl -f $DOMAINS --output /tmp/dnsmasq.d/domains.lst
-            break
+        if curl -m 3 -f https://github.com >/dev/null 2>&1; then
+            log "Интернет доступен. Переход к загрузке списков"
+            ok=1
+
+            log "Шаг 3: Скачивание первого списка"
+            if curl -m 10 -f "$DOMAINS1" -o "$FILE1"; then
+                log "Первый список успешно загружен"
+            else
+                log "Ошибка при загрузке первого списка ($DOMAINS1)"
+                ok=0
+            fi
+
+            log "Шаг 4: Скачивание второго списка"
+            if curl -m 10 -f "$DOMAINS2" -o "$FILE2"; then
+                log "Второй список успешно загружен"
+            else
+                log "Ошибка при загрузке второго списка ($DOMAINS2)"
+                ok=0
+            fi
+
+            [ "$ok" -eq 1 ] && break || log "Повторная попытка загрузки списков [$count]"
         else
-            echo "GitHub is not available. Check the internet availability [$count]"
-            count=$((count+1))
+            log "GitHub или интернет недоступен. Повторная проверка [$count]"
         fi
+        count=$((count + 1))
+        sleep 5
     done
 
-    if dnsmasq --conf-file=/tmp/dnsmasq.d/domains.lst --test 2>&1 | grep -q "syntax check OK"; then
+    log "Шаг 5: Объединение и сортировка списков"
+    cat "$FILE1" "$FILE2" | sort -u > "$COMBINED_NEW"
+    log "Списки объединены в файл $COMBINED_NEW"
+
+    log "Шаг 6: Проверка синтаксиса dnsmasq"
+    if dnsmasq --conf-file="$COMBINED_NEW" --test 2>&1 | grep -q "syntax check OK"; then
+        log "Синтаксис проверен успешно. Применяем конфигурацию"
+        mv "$COMBINED_NEW" "$COMBINED_FINAL"
+        log "Шаг 7: Перезапуск dnsmasq"
         /etc/init.d/dnsmasq restart
+        log "dnsmasq успешно перезапущен"
+    else
+        log "Ошибка синтаксиса в объединённом списке. Оставляем старую конфигурацию"
+        rm -f "$COMBINED_NEW"
     fi
 }
