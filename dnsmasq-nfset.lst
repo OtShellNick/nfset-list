@@ -3,4 +3,4 @@ nftset=/trae.ai/4#inet#fw4#vpn_domains
 nftset=/deepseek.com/4#inet#fw4#vpn_domains
 nftset=/mmcdn.com/4#inet#fw4#vpn_domains
 nftset=/highwebmedia.com/4#inet#fw4#vpn_domains
-nftset=/npmjs.com/4#inet#fw4#vpn_domains
+nftset=/yarnpkg.com/4#inet#fw4#vpn_domains
