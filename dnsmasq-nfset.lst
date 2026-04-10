@@ -7,3 +7,4 @@ nftset=/yarnpkg.com/4#inet#fw4#vpn_domains
 nftset=/pathofexile.com/4#inet#fw4#vpn_domains
 nftset=/cloudflare.com/4#inet#fw4#vpn_domains
 nftset=/meet.google.com/4#inet#fw4#vpn_domains
+nftset=/telegram.org/4#inet#fw4#vpn_domains
