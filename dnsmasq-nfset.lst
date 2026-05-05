@@ -11,3 +11,4 @@ nftset=/telegram.org/4#inet#fw4#vpn_domains
 nftset=/youtube.com/4#inet#fw4#vpn_domains
 nftset=/chatgpt.com/4#inet#fw4#vpn_domains
 nftset=/claude.com/4#inet#fw4#vpn_domains
+nftset=/grokusercontent.com/4#inet#fw4#vpn_domains
