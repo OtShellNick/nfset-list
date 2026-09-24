@@ -38,7 +38,11 @@ jobs:
           local = local_file.read_text(encoding="utf-8")
 
           rx = re.compile(r"^nftset=/([^/]+)/", re.MULTILINE)
-          domains = sorted(set(rx.findall(upstream) + rx.findall(local)))
+          domains = sorted({
+              d.lstrip(".").strip().lower()
+              for d in (rx.findall(upstream) + rx.findall(local))
+              if d.lstrip(".").strip()
+          })
 
           profile = {
               "kind": "throne-route-profile",
