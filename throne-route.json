@@ -6,8 +6,6 @@
     {
       "action": "route",
       "domain_suffix": [
-        ".ai",
-        ".ua",
         "10minutemail.com",
         "1337x.to",
         "24.kg",
@@ -37,6 +35,7 @@
         "affinity.studio",
         "agents.media",
         "ahrefs.com",
+        "ai",
         "ai-chat.bsg.brave.com",
         "ai.com",
         "aircanada.com",
@@ -1081,6 +1080,7 @@
         "twttr.net",
         "twvid.com",
         "typing.com",
+        "ua",
         "uaudio.com",
         "ui.ill.in.ua",
         "uizard.io",
