@@ -1,0 +1,32 @@
+{
+  "kind": "throne-route-profile",
+  "name": "VPN domains (auto)",
+  "default_outbound": "direct",
+  "rules": [
+    {
+      "action": "route",
+      "domain_suffix": [
+        ".ai",
+        "chatgpt.com",
+        "claude.com",
+        "cloudflare.com",
+        "deepseek.com",
+        "grokusercontent.com",
+        "highwebmedia.com",
+        "meet.google.com",
+        "mmcdn.com",
+        "panicartstudios.com",
+        "pathofexile.com",
+        "tbhvault.xyz",
+        "telegram.org",
+        "trae.ai",
+        "upscale.media",
+        "yarnpkg.com",
+        "youtube.com"
+      ],
+      "outbound": "proxy",
+      "name": "Proxy selected domains",
+      "type": "simple_address_proxy"
+    }
+  ]
+}
