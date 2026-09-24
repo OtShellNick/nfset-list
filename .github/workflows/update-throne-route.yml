@@ -1,0 +1,76 @@
+name: Update Throne route profile
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * *"
+  push:
+    branches: [main]
+    paths:
+      - "dnsmasq-nfset.lst"
+      - ".github/workflows/update-throne-route.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Throne remote route profile
+        shell: python
+        run: |
+          import json
+          import re
+          import urllib.request
+          from pathlib import Path
+
+          upstream_url = "https://raw.githubusercontent.com/itdoginfo/allow-domains/main/Russia/inside-dnsmasq-nfset.lst"
+          local_file = Path("dnsmasq-nfset.lst")
+          output_file = Path("throne-route.json")
+
+          with urllib.request.urlopen(upstream_url, timeout=30) as r:
+              upstream = r.read().decode("utf-8")
+
+          local = local_file.read_text(encoding="utf-8")
+
+          rx = re.compile(r"^nftset=/([^/]+)/", re.MULTILINE)
+          domains = sorted(set(rx.findall(upstream) + rx.findall(local)))
+
+          profile = {
+              "kind": "throne-route-profile",
+              "name": "VPN domains (auto)",
+              "default_outbound": "direct",
+              "rules": [
+                  {
+                      "action": "route",
+                      "domain_suffix": domains,
+                      "outbound": "proxy",
+                      "name": "Proxy selected domains",
+                      "type": "simple_address_proxy"
+                  }
+              ]
+          }
+
+          output_file.write_text(
+              json.dumps(profile, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8"
+          )
+
+          print(f"Generated {len(domains)} unique domain suffixes")
+
+      - name: Commit updated profile
+        run: |
+          if git diff --quiet -- throne-route.json; then
+            echo "No changes"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add throne-route.json
+          git commit -m "chore: update Throne route profile"
+          git push
